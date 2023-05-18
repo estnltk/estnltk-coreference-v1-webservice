@@ -1,0 +1,24 @@
+channels:
+  - conda-forge
+  - pypi
+dependencies:
+  - python==3.9.7
+  - python-dotenv=0.15.0
+  - marshmallow=3.10.0
+  - pip
+  - pip:
+      - gunicorn==20.0.4
+      - nauron==1.2
+      - git+https://github.com/estnltk/estnltk.git@f39588ff8865a0610d66bfbf72c51a919417e228#egg=estnltk_core&subdirectory=estnltk_core
+      - stanza==1.5.0
+      - torch
+      - regex
+      - networkx
+      - gensim
+      - numpy
+      - packaging
+      - pandas
+      - scikit-learn
+      - scipy
+      - xgboost
+      - nauron==1.2
