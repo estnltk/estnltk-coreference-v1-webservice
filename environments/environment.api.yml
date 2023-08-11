@@ -9,7 +9,7 @@ dependencies:
   - pip:
       - gunicorn==20.0.4
       - nauron==1.2
-      - git+https://github.com/estnltk/estnltk.git@f39588ff8865a0610d66bfbf72c51a919417e228#egg=estnltk_core&subdirectory=estnltk_core
+      - estnltk_core==1.7.2
       - stanza==1.5.0
       - torch
       - regex
