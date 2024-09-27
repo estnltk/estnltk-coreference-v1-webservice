@@ -6,7 +6,7 @@ This is a web service for EstNLTK's [CoreferenceTagger v1](https://github.com/es
 
 Before setting up the web service, you need to obtain the coreference model and stanza's parsing model for Estonian.  
 
-* You can download _the coreference model_ from [https://entu.keeleressursid.ee/api2/file-24972](https://entu.keeleressursid.ee/api2/file-24972). Unpack the zipped content into root directory. After all necessary model files have been assembled, the local directory `coreference` should have the following structure:
+* You can download _the coreference model_ from [`https://s3.hpc.ut.ee/estnltk/estnltk_resources/coreference_model_2021-01-04.zip`](https://s3.hpc.ut.ee/estnltk/estnltk_resources/coreference_model_2021-01-04.zip). Unpack the zipped content into root directory. After all necessary model files have been assembled, the local directory `coreference` should have the following structure:
 
         coreference/
         └── model_2021-01-04
