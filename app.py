@@ -1,7 +1,9 @@
 import logging
 import os
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from estnltk_core.common import load_text_class
@@ -11,7 +13,7 @@ from coreference_tagger import CoreferenceTagger
 from settings import settings
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(redoc_url=None)
 app.add_middleware(
@@ -30,16 +32,16 @@ tagger = CoreferenceTagger(
     add_chain_ids=False
 )
 
-class Request(BaseModel):
+class RequestModel(BaseModel):
     text: str = Field(...)
     meta: dict = Field(...)
     layers: str = Field(...)
-    output_layer: str = Field(None)
-    parameters: dict = Field(None)
+    output_layer: Optional[str] = Field(None)
+    parameters: Optional[dict] = Field(None)
 
 
 @app.post('/estnltk/tagger/coreference_v1')
-def tagger_coreference_v1(body: Request):
+async def tagger_coreference_v1(body: RequestModel):
     if len(str(body)) > settings.max_content_length:
         raise HTTPException(status_code=413, detail="Request body too large")
     try:
@@ -61,13 +63,13 @@ def tagger_coreference_v1(body: Request):
         logger.exception('Internal error at input processing')
         raise HTTPException(status_code=500, detail='Internal error at input processing')
 
-@app.get('/estnltk/tagger/coreference_v1/about')
-def tagger_coreference_v1_about():
+@app.get('/estnltk/tagger/coreference_v1/about', response_class=HTMLResponse)
+async def tagger_coreference_v1_about():
     return 'Tags pronominal coreference using EstNLTK CoreferenceTagger\'s webservice. '+\
            'Based on EstonianCoreferenceSystem v1.0.0.'
 
 
-@app.get('/estnltk/tagger/coreference_v1/status')
-def tagger_coreference_v1_status():
+@app.get('/estnltk/tagger/coreference_v1/status', response_class=HTMLResponse)
+async def tagger_coreference_v1_status():
     return 'OK'
 
