@@ -1,34 +1,33 @@
-FROM continuumio/miniconda3
+FROM python:3.9
 
-# NAURON_MODE is a build argument and an environment variable that determines whether the image contains a full API, a
-# gateway API or a worker. Expected value is one of ["API", "GATEWAY", "WORKER"].
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y \
+        gcc \
+        g++ \
+        libffi-dev \
+        musl-dev
 
-ARG NAURON_MODE="API"
-ENV NAURON_MODE=$NAURON_MODE
+ENV PYTHONIOENCODING=utf-8
+ENV MKL_NUM_THREADS=16
+WORKDIR /app
 
-# Configuring Conda environment
-COPY environments/* ./
-RUN if [ "$NAURON_MODE" = "GATEWAY" ]; then \
-        conda env create -f environment.gateway.yml -n nauron; \
-    elif [ "$NAURON_MODE" = "WORKER" ]; then \
-        conda env create -f environment.worker.yml -n nauron; \
-    else \
-        conda env create -f environment.api.yml -n nauron; \
-    fi; \
-    rm environment*
+RUN adduser --disabled-password --gecos "app" app && \
+    chown -R app:app /app
+USER app
 
-WORKDIR /var/log/nauron
-WORKDIR /estnltk-coreference-v1-tagger
-VOLUME /estnltk-coreference-v1-tagger/coreference
-VOLUME /estnltk-coreference-v1-tagger/stanza_resources
+ENV PATH="/home/app/.local/bin:${PATH}"
 
-# Creating a mode-dependent entrypoint script
-RUN if [ "$NAURON_MODE" = "WORKER" ]; then \
-        echo "coreference_tagger_worker.py" > run.sh; \
-    else \
-        echo "gunicorn --config config/gunicorn.ini.py --log-config config/logging.ini app:app" > run.sh; \
-    fi
+COPY --chown=app:app requirements.txt .
+RUN pip install --user -r requirements.txt && \
+    rm requirements.txt && python -c "import stanza; stanza.download('et', model_dir='stanza_resources')"
 
-COPY . .
+RUN wget https://s3.hpc.ut.ee/estnltk/estnltk_resources/coreference_model_2021-01-04.zip && \
+    unzip coreference_model_2021-01-04.zip && \
+    rm coreference_model_2021-01-04.zip
 
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "nauron", "bash", "run.sh"]
+COPY --chown=app:app . .
+
+EXPOSE 8000
+
+ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--proxy-headers"]

@@ -1,0 +1,11 @@
+stanza_resources/
+coreference/
+*.env
+.git/
+.gitignore
+*.md
+.idea/
+.vscode/
+__pycache__/
+*.pyc
+.DS_Store
