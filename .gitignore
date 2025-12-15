@@ -1,0 +1,10 @@
+stanza_resources/*
+!stanza_resources/_download_et_resources_here_
+coreference/*
+!coreference/_download_models_here_
+*.env
+.idea/
+.vscode/
+__pycache__/
+*.pyc
+.DS_Store
